@@ -1,5 +1,10 @@
 const socket = io();
 
 socket.on('countUpdated', (count) => {
-    console.log('countUpdated starts... ', count)
+    document.querySelector('#countBox').innerHTML = count;
+})
+
+document.querySelector('#increment').addEventListener('click', () => {
+    console.log('CLICKED');
+    socket.emit('countIncrement');
 })

@@ -15,8 +15,14 @@ app.use(express.static(publicDirPath));
 let count = 0;
 io.on('connection', (socket) => {
     console.log('New Web Socket connection found!');
+    count = 0;
+    // socket.emit('countUpdated', count);
 
-    socket.emit('countUpdated', count);
+    socket.on('countIncrement', () => {
+        count++;
+        // socket.emit('countUpdated', count); // only to this specific connection
+        io.emit('countUpdated', count); //emit to all available sockets connection
+    })
 });
 
 server.listen(PORT, () => {
