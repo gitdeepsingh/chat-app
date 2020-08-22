@@ -12,16 +12,10 @@ const publicDirPath = path.join(__dirname, '../public');
 
 app.use(express.static(publicDirPath));
 
-let count = 0;
 io.on('connection', (socket) => {
     console.log('New Web Socket connection found!');
-    count = 0;
-    // socket.emit('countUpdated', count);
-
-    socket.on('countIncrement', () => {
-        count++;
-        // socket.emit('countUpdated', count); // only to this specific connection
-        io.emit('countUpdated', count); //emit to all available sockets connection
+    socket.on('sendMessage', (msg) => {
+        io.emit('receivedMessage', msg);
     })
 });
 
