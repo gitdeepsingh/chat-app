@@ -3,6 +3,7 @@ const http = require('http');
 const path = require('path');
 const socketio = require('socket.io');
 const LangFilter = require('bad-words');
+const { generateMessage } = require('./utils/messages');
 
 const app = express();
 const server = http.createServer(app);
@@ -15,23 +16,23 @@ app.use(express.static(publicDirPath));
 
 io.on('connection', (socket) => {
     console.log('New Web Socket connection found!');
-    socket.emit('receivedMessage', 'Welcome!')
-    socket.broadcast.emit('receivedMessage', 'A new user has joined')
+    socket.emit('receivedMessage', generateMessage('Welcome!'));
+    socket.broadcast.emit('receivedMessage', generateMessage('A new user has joined'))
     socket.on('sendMessage', (msg, cb) => {
         const filter = new LangFilter();
         if (filter.isProfane(msg)) {
             return cb('Profanity not allowed!');
         }
-        io.emit('receivedMessage', msg);
+        io.emit('receivedMessage', generateMessage(msg));
         cb();
     })
 
     socket.on('disconnect', () => {
-        io.emit('receivedMessage', 'A user has seft!');
+        io.emit('receivedMessage', generateMessage('A user has seft!'));
     })
 
     socket.on('sendLocation', (loc, cb) => {
-        io.emit('receivedMessage', `https://google.com/maps?q=${loc.latitude},${loc.longitude}`);
+        io.emit('receivedLocation', generateMessage(`https://google.com/maps?q=${loc.latitude},${loc.longitude}`));
         cb();
 
     })

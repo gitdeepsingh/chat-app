@@ -3,24 +3,47 @@
 
 <head>
     <title>Chat App</title>
+    <link rel="icon" href="./img/favicon.png" />
+    <link rel="stylesheet" href="./css/styles.css" />
 </head>
 
 <body>
-    Chat App !
-    <button id="increment">+1</button>
-    <div id="messages"></div>
+    <div class="chat">
+        <div class="chat__sidebar">
 
-    <form id="messageForm">
-        <input name="message" type="text" placeholder="Message" />
-        <button> Send </button>
-    </form>
+        </div>
+        <div class="chat__main">
+            <div id="messages" claas="chat__messages"></div>
+            <div class="compose">
+                <form id="messageForm">
+                    <input name="message" type="text" placeholder="Message" />
+                    <button> Send </button>
+                </form>
+                <button id="send-location">Send Location</button>
+            </div>
+        </div>
+    </div>
 
-    <button id="send-location">Send Location</button>
-
+    <!--messages-->
     <script id="message-template" type="text/html">
-        <div>
+        <div class="message">
+            <p>
+                <span class="message__name"> username </span>
+                <span class="message__meta"> {{time}} </span>
+            </p>
             <p>{{message}}</p>
         </div>
+    </script>
+
+    <!--location-->
+    <script id="location-template" type="text/html">
+        <div class="message">
+            <p>
+                <span class="message__name"> username </span>
+                <span class="message__meta"> {{time}} </span>
+            </p>
+            <p><a href={{locationURL}} target="_blank">My current location</a></p>
+        </div>  
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>

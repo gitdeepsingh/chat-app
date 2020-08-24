@@ -8,31 +8,40 @@ const $messages = document.querySelector('#messages');
 
 //Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML;
+const locationTemplate = document.querySelector('#location-template').innerHTML;
 
 socket.on('receivedMessage', (message) => {
-    console.log('message===>', message);
     const html = Mustache.render(messageTemplate, {
-        message
+        message: message.text,
+        time: moment(message.createdAt).format('hh:mm a')
     });
-    console.log('html: ', html);
     $messages.insertAdjacentHTML('beforeend', html)
+})
+
+socket.on('receivedLocation', (location) => {
+    const html = Mustache.render(locationTemplate, {
+        locationURL: location.text,
+        time: moment(location.createdAt).format('hh:mm a')
+    });
+    $messages.insertAdjacentHTML('beforeend', html);
 })
 
 $messageForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    $messageFormBtn.setAttribute('disabled', 'disabled');
     const input = e.target.elements.message;
     const msg = input.value;
-
-    socket.emit('sendMessage', msg, (err) => {
-        $messageFormBtn.removeAttribute('disabled');
-        $messageFormInput.value = '';
-        $messageFormInput.focus();
-        if (err) {
-            return console.log(err);
-        }
-        console.log('Message delivered successfully!');
-    });
+    if (msg.trim()) {
+        $messageFormBtn.setAttribute('disabled', 'disabled');
+        socket.emit('sendMessage', msg, (err) => {
+            $messageFormBtn.removeAttribute('disabled');
+            $messageFormInput.value = '';
+            $messageFormInput.focus();
+            if (err) {
+                return console.log(err);
+            }
+            console.log('Message delivered successfully!');
+        });
+    }
 })
 
 $locationBtn.addEventListener('click', () => {
@@ -50,7 +59,6 @@ $locationBtn.addEventListener('click', () => {
             if (err) {
 
             }
-            console.log('Location sent!');
         })
     })
 })
