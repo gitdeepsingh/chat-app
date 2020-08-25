@@ -1,13 +1,76 @@
 const socket = io();
 
+//Elements
+const $messageForm = document.querySelector('#messageForm');
+const $messageFormInput = $messageForm.querySelector('input');
+const $messageFormBtn = $messageForm.querySelector('button');
+const $locationBtn = document.querySelector('#send-location');
+const $messages = document.querySelector('#messages');
+
+//Templates
+const messageTemplate = document.querySelector('#message-template').innerHTML;
+const locationTemplate = document.querySelector('#location-template').innerHTML;
+
+//options
+const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true });
+
 socket.on('receivedMessage', (message) => {
-    console.log('message===>', message);
+    const html = Mustache.render(messageTemplate, {
+        username: message.username,
+        message: message.text,
+        time: moment(message.createdAt).format('hh:mm a')
+    });
+    $messages.insertAdjacentHTML('beforeend', html)
 })
 
-document.querySelector('#messageForm').addEventListener('submit', (e) => {
+socket.on('receivedLocation', (message) => {
+    const html = Mustache.render(locationTemplate, {
+        username: message.username,
+        locationURL: message.text,
+        time: moment(message.createdAt).format('hh:mm a')
+    });
+    $messages.insertAdjacentHTML('beforeend', html);
+})
+
+$messageForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const input = e.target.elements.message;
     const msg = input.value;
+    if (msg.trim()) {
+        $messageFormBtn.setAttribute('disabled', 'disabled');
+        socket.emit('sendMessage', msg, (err) => {
+            $messageFormBtn.removeAttribute('disabled');
+            $messageFormInput.value = '';
+            $messageFormInput.focus();
+            if (err) {
+                return console.log(err);
+            }
+        });
+    }
+})
 
-    socket.emit('sendMessage', msg);
+$locationBtn.addEventListener('click', () => {
+    if (!navigator.geolocation) {
+        window.alert('Gelocation not supported by your browser!');
+    }
+    $locationBtn.setAttribute('disabled', 'disabled');
+
+    navigator.geolocation.getCurrentPosition((position) => {
+        socket.emit('sendLocation', {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+        }, (err) => {
+            $locationBtn.removeAttribute('disabled');
+            if (err) {
+
+            }
+        })
+    })
+})
+
+socket.emit('joinRoom', { username, room }, (err) => {
+    if (err) {
+        window.alert(err);
+        location.href = '/'
+    }
 })

@@ -3,21 +3,24 @@
 
 <head>
     <title>Chat App</title>
+    <link rel="icon" href="./img/favicon.png" />
+    <link rel="stylesheet" href="./css/styles.css" />
 </head>
 
 <body>
-    Chat App !
-    <button id="increment">+1</button>
-    <div id="dataBox"></div>
+    <div class="centered-form">
+        <div class="centered-form__box">
+            <h1>JOIN</h1>
+            <form action="./chat.html">
+                <label for="username">Display name</label>
+                <input type="text" name="username" placeholder="Display name" required />
+                <label for="room">Room</label>
+                <input type="text" name="room" placeholder="Room" required />
+                <button>Enter</button>
+            </form>
+        </div>
 
-    <form id="messageForm">
-        <input name="message" type="text" placeholder="Message" />
-        <button> Send </button>
-    </form>
-
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/js/chat.js"></script>
+    </div>
 </body>
 
 </html>
