@@ -4,6 +4,12 @@ const path = require('path');
 const socketio = require('socket.io');
 const LangFilter = require('bad-words');
 const { generateMessage } = require('./utils/messages');
+const {
+    addUser,
+    removeUser,
+    getUser,
+    getUsersInRoom
+} = require('./utils/users');
 
 const app = express();
 const server = http.createServer(app);
@@ -17,10 +23,19 @@ app.use(express.static(publicDirPath));
 io.on('connection', (socket) => {
     console.log('New Web Socket connection found!');
 
-    socket.on('joinRoom', ({ username, room }) => {
-        socket.join(room);
+    socket.on('joinRoom', (options, cb) => {
+        const { error, user } = addUser({ id: socket.id, ...options });
+
+        if (error) {
+            return cb(error);
+        }
+
+        socket.join(user.room);
+
         socket.emit('receivedMessage', generateMessage('Welcome!'));
-        socket.broadcast.to(room).emit('receivedMessage', generateMessage(`${username} has joined!`));
+        socket.broadcast.to(user.room).emit('receivedMessage', generateMessage(`${user.username} has joined!`));
+
+        cb();
     })
     socket.on('sendMessage', (msg, cb) => {
         const filter = new LangFilter();
@@ -32,7 +47,9 @@ io.on('connection', (socket) => {
     })
 
     socket.on('disconnect', () => {
-        io.emit('receivedMessage', generateMessage('A user has left!'));
+        const user = removeUser(socket.id);
+
+        if (user) io.to(user.room).emit('receivedMessage', generateMessage(`${user.username} has left!`));
     })
 
     socket.on('sendLocation', (loc, cb) => {
