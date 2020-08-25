@@ -16,8 +16,12 @@ app.use(express.static(publicDirPath));
 
 io.on('connection', (socket) => {
     console.log('New Web Socket connection found!');
-    socket.emit('receivedMessage', generateMessage('Welcome!'));
-    socket.broadcast.emit('receivedMessage', generateMessage('A new user has joined'))
+
+    socket.on('joinRoom', ({ username, room }) => {
+        socket.join(room);
+        socket.emit('receivedMessage', generateMessage('Welcome!'));
+        socket.broadcast.to(room).emit('receivedMessage', generateMessage(`${username} has joined!`));
+    })
     socket.on('sendMessage', (msg, cb) => {
         const filter = new LangFilter();
         if (filter.isProfane(msg)) {
@@ -28,7 +32,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('disconnect', () => {
-        io.emit('receivedMessage', generateMessage('A user has seft!'));
+        io.emit('receivedMessage', generateMessage('A user has left!'));
     })
 
     socket.on('sendLocation', (loc, cb) => {

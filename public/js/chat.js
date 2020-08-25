@@ -1,5 +1,6 @@
 const socket = io();
 
+//Elements
 const $messageForm = document.querySelector('#messageForm');
 const $messageFormInput = $messageForm.querySelector('input');
 const $messageFormBtn = $messageForm.querySelector('button');
@@ -9,6 +10,9 @@ const $messages = document.querySelector('#messages');
 //Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML;
 const locationTemplate = document.querySelector('#location-template').innerHTML;
+
+//options
+const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true });
 
 socket.on('receivedMessage', (message) => {
     const html = Mustache.render(messageTemplate, {
@@ -62,3 +66,5 @@ $locationBtn.addEventListener('click', () => {
         })
     })
 })
+
+socket.emit('joinRoom', { username, room })
