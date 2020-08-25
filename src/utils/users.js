@@ -39,7 +39,7 @@ removeUser = id => {
 }
 
 getUser = id => {
-    return users.filter((u) => u.id === id);
+    return users.find((u) => u.id === id);
 }
 
 getUsersInRoom = room => {

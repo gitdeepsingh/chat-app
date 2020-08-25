@@ -33,27 +33,32 @@ io.on('connection', (socket) => {
         socket.join(user.room);
 
         socket.emit('receivedMessage', generateMessage('Welcome!'));
-        socket.broadcast.to(user.room).emit('receivedMessage', generateMessage(`${user.username} has joined!`));
+        socket.broadcast.to(user.room).emit('receivedMessage', generateMessage('Admin', `${user.username} has joined!`));
 
         cb();
     })
+
     socket.on('sendMessage', (msg, cb) => {
+        const user = getUser(socket.id);
         const filter = new LangFilter();
         if (filter.isProfane(msg)) {
             return cb('Profanity not allowed!');
         }
-        io.emit('receivedMessage', generateMessage(msg));
+
+
+        io.to(user.room).emit('receivedMessage', generateMessage(user.username, msg));
         cb();
     })
 
     socket.on('disconnect', () => {
         const user = removeUser(socket.id);
 
-        if (user) io.to(user.room).emit('receivedMessage', generateMessage(`${user.username} has left!`));
+        if (user) io.to(user.room).emit('receivedMessage', generateMessage('Admin', `${user.username} has left!`));
     })
 
     socket.on('sendLocation', (loc, cb) => {
-        io.emit('receivedLocation', generateMessage(`https://google.com/maps?q=${loc.latitude},${loc.longitude}`));
+        const user = getUser(socket.id)
+        io.to(user.room).emit('receivedLocation', generateMessage(user.username, `https://google.com/maps?q=${loc.latitude},${loc.longitude}`));
         cb();
 
     })
