@@ -104,8 +104,6 @@ button:disabled {
     display: flex;
     flex-direction: column;
     max-height: 100vh;
-    justify-content: space-between;
-    padding-top: 10px;
 }
 
 .chat__messages {
@@ -118,7 +116,6 @@ button:disabled {
 
 .message {
     margin-bottom: 16px;
-    padding: 0 24px;
 }
 
 .message__name {
@@ -172,6 +169,8 @@ button:disabled {
     padding: 24px 0;
     text-align: center;
     text-transform: uppercase;
+    word-break: break-word;
+    padding: 10px;
 }
 
 .list-title {
